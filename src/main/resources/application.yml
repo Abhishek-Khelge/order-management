@@ -1,0 +1,41 @@
+server:
+  port: 8097
+  servlet:
+    context-path: /
+
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:liquibase/changelog-master.xml
+  datasource:
+    url: jdbc:postgresql://localhost:54339/order_management
+    username: user
+    password: password
+    port: 54339
+    database: order_management
+    platform: POSTGRESQL
+    hikari:
+      maximum-pool-size: 5
+      connection-timeout: 5000
+    jpa:
+      hibernate:
+        ddl-auto: none
+      open-in-view: false
+      properties:
+        generate_statistics: false
+
+app:
+  environment: local
+  application:
+    name: Order-Management
+    base-url: http://localhost:8097
+  http:
+    readTimeOut: 15000
+    connectTimeOut: 3000
+    maxTotal: 256
+    maxPerRoute: 128
+
+springdoc:
+  api-docs:
+    path: /v1/api-docs
+
