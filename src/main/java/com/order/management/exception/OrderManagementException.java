@@ -22,6 +22,10 @@ public class OrderManagementException extends Exception {
             "40201", "product does not exist in inventory for the given serial number %1$2s",
             "40202", "product quantity can't be decreased less than 0 for given serial number %1$2s",
             "40203", "product already exits for for given serial number %1$2s, the serial number should be unique, try updating the product details",
+            "40204", "product already exits for for given serial number %1$2s, try updating the cart",
+            "40205", "product doesn't exits for for given serial number %1$2s, try adding to the cart first",
+            "40206", "product quantity can't be decreased less than 0, you can delete the product from cart if" +
+                    " you are looking for that",
 
             // ... (other error messages)
             "500", "Internal Server Error"

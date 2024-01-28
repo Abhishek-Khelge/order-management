@@ -26,7 +26,7 @@ public class ListInfo {
     private SortOrder sortOrder;
 
 
-    private static final Integer DEFAULT_PAGE_SIZE = 5;
+    private static final Integer DEFAULT_PAGE_SIZE = 3;
     private static final Integer DEFAULT_PAGE = 0;
 
     public ListInfo(Integer page, Integer pageSize) {

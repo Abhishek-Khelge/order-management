@@ -31,9 +31,6 @@ public class ProductService {
     @SneakyThrows
     public UpdateProductResponseModel updateProduct(String serialNumber, UpdateProductRequestModel updateProductRequestModel) {
         Inventory inventory = inventoryService.getProductBySerialNumber(serialNumber);
-        if (inventory == null) {
-            throwNotExistsException(serialNumber);
-        }
         updateInventoryFields(serialNumber, updateProductRequestModel, inventory);
         inventory = inventoryService.updateProduct(inventory.getId(), inventory);
         return ProductMapper.fromEntityUpdateModel(inventory);
@@ -41,9 +38,6 @@ public class ProductService {
 
     public UpdateProductResponseModel removeProduct(String serialNumber) {
         Inventory inventory = inventoryService.getProductBySerialNumber(serialNumber);
-        if (inventory == null) {
-            throwNotExistsException(serialNumber);
-        }
         inventory.setDeleted(true);
         inventory = inventoryService.updateProduct(inventory.getId(), inventory);
         return ProductMapper.fromEntityUpdateModel(inventory);
@@ -64,17 +58,9 @@ public class ProductService {
 
     public ProductResponseModel getProductDetails(String serialNumber) {
         Inventory inventory = inventoryService.getProductBySerialNumber(serialNumber);
-        if (inventory == null) {
-            throwNotExistsException(serialNumber);
-        }
         return ProductMapper.fromProductResponse(inventory);
     }
 
-    @SneakyThrows
-    private static void throwNotExistsException(String serialNumber) {
-        throw new OrderManagementException(OrderManagementError.PRODUCT_DOES_NOT_EXISTS,
-                new String[]{serialNumber});
-    }
 
     private void updateInventoryFields(String serialNumber, UpdateProductRequestModel updateProductRequestModel, Inventory inventory) throws OrderManagementException {
         if (updateProductRequestModel.getProductName() != null) {

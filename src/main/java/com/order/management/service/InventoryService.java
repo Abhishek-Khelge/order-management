@@ -28,7 +28,16 @@ public class InventoryService {
 
     public Inventory getProductBySerialNumber(String serialNumber) {
         Optional<Inventory> inventoryEntityOptional = inventoryRepository.findBySerialNumber(serialNumber);
+        if (!inventoryEntityOptional.isPresent()) {
+            throwNotExistsException(serialNumber);
+        }
         return inventoryEntityOptional.orElse(null);
+    }
+
+    @SneakyThrows
+    private void throwNotExistsException(String serialNumber) {
+        throw new OrderManagementException(OrderManagementError.PRODUCT_DOES_NOT_EXISTS,
+                new String[]{serialNumber});
     }
 
     @SneakyThrows
