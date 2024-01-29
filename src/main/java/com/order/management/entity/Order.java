@@ -18,9 +18,19 @@ public class Order extends AuditBaseEntity {
     @Setter
     private String userId;
 
-    @Column(name = "total_price")
+    @Column(name = "product_id")
     @Getter
     @Setter
-    private BigDecimal totalAmount;
+    private Integer productId;
 
+    @Column(name = "order_price")
+    @Getter
+    @Setter
+    private BigDecimal orderPrice;
+
+    @Column(name = "order_status")
+    @Enumerated(EnumType.STRING)
+    @Getter
+    @Setter
+    private OrderStatus orderStatus;
 }

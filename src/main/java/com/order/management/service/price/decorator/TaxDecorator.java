@@ -27,21 +27,15 @@ public class TaxDecorator implements PriceComponent {
     @Override
     public BigDecimal calculate(BigDecimal basePrice) {
         BigDecimal calculatedPrice = component.calculate(basePrice);
-
-        // Calculate tax separately using calculateTax method
         BigDecimal tax = calculateTax(basePrice);
-
-        // Add tax to the calculated price
         return calculatedPrice.add(tax);
     }
 
     public BigDecimal calculateTax(BigDecimal basePrice) {
-        // Calculate tax based on the retrieved tax rate
         return basePrice.multiply(taxRate);
     }
 
     private BigDecimal getCategoryTaxRate(String category) {
         return CATEGORY_TAX_MAP.getOrDefault(category, new BigDecimal("0.12"));
-        // Apply a flat tax of 12% if the category is not found
     }
 }

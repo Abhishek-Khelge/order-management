@@ -13,10 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 title = "Order Management",
                 version = "1.0",
                 description = "Order Management Application API endpoints"
-        ),
-        tags = {
-                @Tag(name = "INVENTORY", description = "Product Inventory API Endpoints")
-        }
+        )
 )
 public class OrderManagementApplication {
 

@@ -6,5 +6,4 @@
 
 <!--	<includeAll path="classpath:/liquibase/changelog/*xml"/>-->
 	<include file="classpath:/liquibase/changelog/order.xml"/>
-	<include file="classpath:/liquibase/changelog/order_item.xml"/>
 </databaseChangeLog>
