@@ -1,89 +1,68 @@
 package com.order.management.service;
 
-
-import com.order.management.entity.Inventory;
-import com.order.management.exception.OrderManagementError;
-import com.order.management.exception.OrderManagementException;
-import com.order.management.mapper.ProductMapper;
-import com.order.management.model.inventory.*;
-import com.order.management.repository.InventoryRepository;
-import lombok.SneakyThrows;
+import com.order.management.db.ProductDetails;
+import com.order.management.db.ProductDetailsRepository;
+import com.order.management.model.product.PriceQuoteRequest;
+import com.order.management.model.product.PriceQuoteResponse;
+import com.order.management.service.price.BasePrice;
+import com.order.management.service.price.PriceComponent;
+import com.order.management.service.price.decorator.DeliveryDecorator;
+import com.order.management.service.price.decorator.DiscountDecorator;
+import com.order.management.service.price.decorator.PlatformFeeDecorator;
+import com.order.management.service.price.decorator.TaxDecorator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 public class ProductService {
 
     @Autowired
-    private InventoryService inventoryService;
-    @Autowired
-    private InventoryRepository inventoryRepository;
+    private ProductDetailsRepository productDetailsRepository;
 
-    public AddProductResponseModel addProduct(AddProductRequestModel productInputModel) {
-        Inventory inventory = ProductMapper.toEntity(productInputModel);
-        inventory = inventoryService.addProduct(inventory);
-        return ProductMapper.fromEntityAddModel(inventory);
-    }
+    public PriceQuoteResponse calculatePriceQuote(Integer productId, PriceQuoteRequest priceQuoteRequest) {
+        ProductDetails productDetails = productDetailsRepository.getProductDetails(productId);
 
-    @SneakyThrows
-    public UpdateProductResponseModel updateProduct(String serialNumber, UpdateProductRequestModel updateProductRequestModel) {
-        Inventory inventory = inventoryService.getProductBySerialNumber(serialNumber);
-        updateInventoryFields(serialNumber, updateProductRequestModel, inventory);
-        inventory = inventoryService.updateProduct(inventory.getId(), inventory);
-        return ProductMapper.fromEntityUpdateModel(inventory);
-    }
+        PriceComponent priceCalculator = new BasePrice();
 
-    public UpdateProductResponseModel removeProduct(String serialNumber) {
-        Inventory inventory = inventoryService.getProductBySerialNumber(serialNumber);
-        inventory.setDeleted(true);
-        inventory = inventoryService.updateProduct(inventory.getId(), inventory);
-        return ProductMapper.fromEntityUpdateModel(inventory);
-    }
+        BigDecimal basePrice = new BigDecimal("50.0");
 
-    public Page<ProductResponseModel> searchBySearchQuery(String decodedSearchQuery, Pageable pageable) {
-        Page<Inventory> toReturn = inventoryRepository.findAllByProductNameIgnoreCaseContaining
-                (decodedSearchQuery, pageable);
-        if (toReturn == null || toReturn.isEmpty()) {
-            return Page.empty();
+        DiscountDecorator discountDecorator = null;
+        PlatformFeeDecorator platformFeeDecorator = null;
+        DeliveryDecorator deliveryDecorator = null;
+        TaxDecorator taxDecorator = null;
+
+        if (priceQuoteRequest.hasCoupon()) {
+            discountDecorator = new DiscountDecorator(priceCalculator, priceQuoteRequest.getCouponCode());
+            priceCalculator = discountDecorator;
         }
-        return new PageImpl<>(
-                ProductMapper.fromProductResponse(toReturn.stream().toList()),
-                toReturn.getPageable(),
-                toReturn.getTotalElements()
-        );
-    }
 
-    public ProductResponseModel getProductDetails(String serialNumber) {
-        Inventory inventory = inventoryService.getProductBySerialNumber(serialNumber);
-        return ProductMapper.fromProductResponse(inventory);
-    }
+        if (priceQuoteRequest.isIncludePlatformFee()) {
+            platformFeeDecorator = new PlatformFeeDecorator(priceCalculator, productDetails.getPrice());
+            priceCalculator = platformFeeDecorator;
+        }
 
+        if (priceQuoteRequest.applyDelivery()) {
+            deliveryDecorator = new DeliveryDecorator(priceCalculator, priceQuoteRequest.getDistance());
+            priceCalculator = deliveryDecorator;
+        }
 
-    private void updateInventoryFields(String serialNumber, UpdateProductRequestModel updateProductRequestModel, Inventory inventory) throws OrderManagementException {
-        if (updateProductRequestModel.getProductName() != null) {
-            inventory.setProductName(updateProductRequestModel.getProductName());
+        if (priceQuoteRequest.isIncludeTax()) {
+            taxDecorator = new TaxDecorator(priceCalculator, productDetails.getCategory());
+            priceCalculator = taxDecorator;
         }
-        if (updateProductRequestModel.getPrice() != null) {
-            inventory.setPrice(updateProductRequestModel.getPrice());
-        }
-        if (updateProductRequestModel.getDescription() != null) {
-            inventory.setDescription(updateProductRequestModel.getDescription());
-        }
-        if (updateProductRequestModel.getIncreaseQuantityBy() != 0) {
-            inventory.setQuantity(inventory.getQuantity() + updateProductRequestModel.getIncreaseQuantityBy());
-        }
-        if (updateProductRequestModel.getDecreaseQuantityBy() != 0) {
-            if (inventory.getQuantity() - updateProductRequestModel.getDecreaseQuantityBy() < 0) {
-                throw new OrderManagementException(OrderManagementError.PRODUCT_QUANTITY_DECREASE_LESS_THAN_ZERO,
-                        new String[]{"serialNumber", serialNumber});
-            }
-            inventory.setQuantity(inventory.getQuantity() - updateProductRequestModel.getDecreaseQuantityBy());
-        }
+
+        BigDecimal finalPrice = priceCalculator.calculate(basePrice);
+
+        System.out.println("Final Price: $" + finalPrice);
+
+        BigDecimal discount = (discountDecorator != null) ? discountDecorator.getCouponDiscountAmount(basePrice) : BigDecimal.ZERO;
+        BigDecimal deliveryCharges = (deliveryDecorator != null) ? deliveryDecorator.calculateDeliveryFee() : BigDecimal.ZERO;
+        BigDecimal tax = (taxDecorator != null) ? taxDecorator.calculateTax(basePrice) : BigDecimal.ZERO;
+        BigDecimal platformFee = (platformFeeDecorator != null) ? platformFeeDecorator.getPlatformFee(basePrice) : BigDecimal.ZERO;
+
+        return new PriceQuoteResponse(basePrice, discount, tax, platformFee, deliveryCharges, finalPrice);
     }
 
 }
-
-

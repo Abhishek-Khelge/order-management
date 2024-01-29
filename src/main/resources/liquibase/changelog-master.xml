@@ -5,6 +5,6 @@
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
 <!--	<includeAll path="classpath:/liquibase/changelog/*xml"/>-->
-	<include file="classpath:/liquibase/changelog/cart.xml"/>
-	<include file="classpath:/liquibase/changelog/inventory.xml"/>
+	<include file="classpath:/liquibase/changelog/order.xml"/>
+	<include file="classpath:/liquibase/changelog/order_item.xml"/>
 </databaseChangeLog>

@@ -6,7 +6,7 @@
     <changeSet id="28012024-2" author="Abhishek_Khelge">
         <createTable tableName="order_item">
             <column name="id" type="CHAR(25)">
-                <constraints primaryKey="true" primaryKeyName="inventory_pk"/>
+                <constraints primaryKey="true" primaryKeyName="order_item_pk"/>
             </column>
             <column name="order_id" type="CHAR(25)">
                 <constraints nullable="false"/>
