@@ -4,18 +4,28 @@ import com.order.management.service.price.PriceComponent;
 
 import java.math.BigDecimal;
 
-public class PlatformFeeDecorator implements PriceComponent {
-    private static final BigDecimal FEE = new BigDecimal("2.0");
+public class PlatformFeeDecorator extends PriceDecorator {
+    private static BigDecimal FEE = new BigDecimal("2.0");
     private static final BigDecimal FEE_THRESHOLD = new BigDecimal("100.0");
 
-    private final BigDecimal basePrice;
+    private BigDecimal basePrice;
 
     private final PriceComponent component;
 
     public PlatformFeeDecorator(PriceComponent component, BigDecimal basePrice) {
+        super(component);
         this.component = component;
         this.basePrice = basePrice;
     }
+
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
+    }
+
+    public void setPlatformFee(BigDecimal fee) {
+        FEE = fee;
+    }
+
 
     @Override
     public BigDecimal calculate(BigDecimal basePrice) {

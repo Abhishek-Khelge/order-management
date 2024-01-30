@@ -4,16 +4,17 @@ import com.order.management.service.price.PriceComponent;
 
 import java.math.BigDecimal;
 
-public class DeliveryDecorator implements PriceComponent {
+public class DeliveryDecorator extends PriceDecorator {
     private static final BigDecimal BASE_FEE = new BigDecimal("5.0");
     private static final BigDecimal BASE_DISTANCE = new BigDecimal("5.0");
     private static final BigDecimal ADDITIONAL_FEE_PER_KM = new BigDecimal("1.0");
 
     private final BigDecimal additionalFeePerKm;
     private final BigDecimal distance;
-    private final PriceComponent component;
+    final PriceComponent component;
 
     public DeliveryDecorator(PriceComponent component, BigDecimal distance) {
+        super(component);
         this.component = component;
         this.additionalFeePerKm = ADDITIONAL_FEE_PER_KM;
         this.distance = distance;

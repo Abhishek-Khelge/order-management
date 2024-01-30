@@ -24,6 +24,7 @@ public class OrderManagementException extends Exception {
             "40203", "product already exits for for given serial number %1$2s, the serial number should be unique, try updating the product details",
 
             // ... (other error messages)
+            "50001" , "Something went wrong while calculating product's price",
             "500", "Internal Server Error"
     );
 

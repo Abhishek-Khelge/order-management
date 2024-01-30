@@ -2,12 +2,14 @@ package com.order.management.model.product;
 
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 
 @Data
 public class PriceQuoteRequest {
     private String couponCode;
     private boolean includeTax;
+    @Min(0)
     private BigDecimal distance;
     private boolean includePlatformFee;
 

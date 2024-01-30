@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TaxDecorator implements PriceComponent {
+public class TaxDecorator extends PriceDecorator {
     private static final Map<String, BigDecimal> CATEGORY_TAX_MAP;
 
     static {
@@ -20,6 +20,7 @@ public class TaxDecorator implements PriceComponent {
     private final PriceComponent component;
 
     public TaxDecorator(PriceComponent component, String category) {
+        super(component);
         this.component = component;
         this.taxRate = getCategoryTaxRate(category);
     }

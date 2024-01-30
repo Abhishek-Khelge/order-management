@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DiscountDecorator implements PriceComponent {
+public class DiscountDecorator extends PriceDecorator {
     private static final Map<String, BigDecimal> COUPON_DISCOUNT_MAP;
 
     static {
@@ -16,10 +16,11 @@ public class DiscountDecorator implements PriceComponent {
         // Add more coupons and discount amounts as needed
     }
 
-    private final BigDecimal discountAmount;
+    private BigDecimal discountAmount;
     private final PriceComponent component;
 
     public DiscountDecorator(PriceComponent component, String couponCode) {
+        super(component);
         this.component = component;
         this.discountAmount = getCouponDiscountAmount(couponCode);
     }
@@ -43,6 +44,10 @@ public class DiscountDecorator implements PriceComponent {
 
     private BigDecimal getCouponDiscountAmount(String couponCode) {
         return COUPON_DISCOUNT_MAP.getOrDefault(couponCode, BigDecimal.ZERO);
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.discountAmount = getCouponDiscountAmount(couponCode);
     }
 }
 
