@@ -16,7 +16,7 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
-    @PostMapping("/api/callback/payment")
+    @PostMapping("/v1/callback/payment")
     public ResponseEntity<ResponseModel> handlePaymentCallback(@RequestBody PaymentEvent paymentEvent) {
         System.out.println("Received callback for payment event: " + paymentEvent);
         paymentService.handlePaymentCallback(paymentEvent.orderId(), paymentEvent.success());

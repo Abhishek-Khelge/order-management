@@ -4,6 +4,27 @@
 				   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-<!--	<includeAll path="classpath:/liquibase/changelog/*xml"/>-->
-	<include file="classpath:/liquibase/changelog/order.xml"/>
+	<changeSet id="30012024-1" author="Abhishek_Khelge">
+		<createTable tableName="order_details">
+			<column name="id" type="CHAR(25)">
+				<constraints primaryKey="true" primaryKeyName="order_details_pk"/>
+			</column>
+			<column name="user_id" type="VARCHAR"/>
+			<column name="product_id" type="INT"/>
+			<column name="order_price" type="NUMERIC(15,2)"/>
+			<column name="order_status" type="VARCHAR"/>
+			<column name="created_at" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="modified_at" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="is_deleted" type="BOOL" defaultValue="false">
+				<constraints nullable="false"/>
+			</column>
+		</createTable>
+		<createIndex tableName="order_details" indexName="idx_user_id">
+			<column name="user_id"/>
+		</createIndex>
+	</changeSet>
 </databaseChangeLog>

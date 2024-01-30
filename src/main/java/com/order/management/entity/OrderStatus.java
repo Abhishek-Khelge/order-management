@@ -2,7 +2,7 @@ package com.order.management.entity;
 
 public enum OrderStatus {
     INITIATED,
-    PENDING_PAYMENT,
+    PAYMENT_PENDING,
     PAID,
     PAYMENT_FAILED
 }

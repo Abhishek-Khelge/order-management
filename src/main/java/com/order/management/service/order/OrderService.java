@@ -2,10 +2,10 @@ package com.order.management.service.order;
 
 import com.order.management.db.ProductDetails;
 import com.order.management.db.ProductDetailsRepository;
-import com.order.management.entity.Order;
+import com.order.management.entity.OrderDetails;
 import com.order.management.entity.OrderStatus;
 import com.order.management.model.order.OrderRequest;
-import com.order.management.repository.OrderRepository;
+import com.order.management.repository.OrderDetailsRepository;
 import com.order.management.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class OrderService {
     private PaymentService paymentService;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderDetailsRepository orderDetailsRepository;
 
     @Autowired
     private NotificationService notificationService;
@@ -34,11 +34,11 @@ public class OrderService {
                 return "Product not available or quantity exceeded.";
             }
 
-            Order order = createOrderEntity(orderRequest, productDetails, userId);
+            OrderDetails orderDetails = createOrderEntity(orderRequest, productDetails, userId);
 
             String paymentRedirectUrl = paymentService.makePayment(orderRequest);
 
-            updateOrderStatus(order, OrderStatus.INITIATED);
+            updateOrderStatus(orderDetails, OrderStatus.PAYMENT_PENDING);
 
             return paymentRedirectUrl;
         } catch (Exception e) {
@@ -48,19 +48,19 @@ public class OrderService {
         }
     }
 
-    private Order createOrderEntity(OrderRequest orderRequest, ProductDetails productDetails, String userId) {
-        Order order = new Order();
-        order.setUserId(userId);
-        order.setProductId(orderRequest.getProductId());
-        order.setOrderPrice(productDetails.getPrice().multiply(BigDecimal.valueOf(orderRequest.getQuantity())));
-        order.setOrderStatus(OrderStatus.INITIATED);
-        order = orderRepository.save(order);
-        return order;
+    private OrderDetails createOrderEntity(OrderRequest orderRequest, ProductDetails productDetails, String userId) {
+        OrderDetails orderDetails = new OrderDetails();
+        orderDetails.setUserId(userId);
+        orderDetails.setProductId(orderDetails.getProductId());
+        orderDetails.setOrderPrice(productDetails.getPrice().multiply(BigDecimal.valueOf(orderRequest.getQuantity())));
+        orderDetails.setOrderStatus(OrderStatus.INITIATED);
+        orderDetails = orderDetailsRepository.save(orderDetails);
+        return orderDetails;
     }
 
-    private void updateOrderStatus(Order order, OrderStatus status) {
-        order.setOrderStatus(status);
-        orderRepository.save(order);
+    private void updateOrderStatus(OrderDetails orderDetails, OrderStatus status) {
+        orderDetails.setOrderStatus(status);
+        orderDetailsRepository.save(orderDetails);
     }
 
 }

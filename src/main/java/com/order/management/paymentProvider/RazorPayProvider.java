@@ -12,7 +12,7 @@ public class RazorPayProvider implements PaymentProvider {
         // Implementation for generating RazorPay redirect URL
         // Include logic to create payment request, interact with RazorPay API, etc.
         // Simulate failure for demonstration purposes
-        if (failureCount < 3) {
+        if (false) {
             failureCount++;
             throw new RuntimeException("RazorPay API failure");
         } else {
