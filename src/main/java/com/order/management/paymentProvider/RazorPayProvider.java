@@ -10,9 +10,10 @@ public class RazorPayProvider implements PaymentProvider {
     @Override
     public String generatePaymentRedirectUrl(OrderRequest orderRequest) {
         // Implementation for generating RazorPay redirect URL
-        // Include logic to create payment request, interact with RazorPay API, etc.
-        // Simulate failure for demonstration purposes
-        if (false) {
+        // Include logic to create payment request, interact with RazorPay API
+        // get failure or success
+        if (failureCount < 3) {
+//        if (false) {
             failureCount++;
             throw new RuntimeException("RazorPay API failure");
         } else {

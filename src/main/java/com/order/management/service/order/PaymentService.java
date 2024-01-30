@@ -2,15 +2,16 @@ package com.order.management.service.order;
 
 import com.order.management.entity.OrderDetails;
 import com.order.management.entity.OrderStatus;
-import com.order.management.model.NotificationModel;
 import com.order.management.model.order.OrderRequest;
 import com.order.management.paymentProvider.PaymentProvider;
 import com.order.management.repository.OrderDetailsRepository;
 import com.order.management.service.NotificationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class PaymentService {
 
     @Autowired
@@ -29,14 +30,12 @@ public class PaymentService {
             currentProvider.resetFailureCount();
             return "Redirect to: " + paymentRedirectUrl;
         } catch (RuntimeException e) {
-            System.out.println(paymentSwitchingService.getCurrentPaymentProvider());
-            if (currentProvider.getFailureCount() > 1){
+            log.error("current CurrentPaymentProvider was :{}", paymentSwitchingService.getCurrentPaymentProvider());
+            if (currentProvider.getFailureCount() > 1) {
                 paymentSwitchingService.switchProvider();
+                log.info("Payment provider switched");
             }
-            // If payment fails, handle the exception
-            System.out.println("Payment failed. Switching to the alternative provider.");
         }
-
         return "Payment failed. Please try later.";
     }
 
@@ -50,7 +49,6 @@ public class PaymentService {
                 order.setOrderStatus(OrderStatus.PAYMENT_FAILED);
             }
             orderDetailsRepository.save(order);
-//            notificationService.addEvent(new NotificationModel(orderId, order.getOrderStatus()));
         }
         notificationService.addEvent(orderId);
     }

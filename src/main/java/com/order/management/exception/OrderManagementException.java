@@ -20,11 +20,12 @@ public class OrderManagementException extends Exception {
             // 40201 - 4500
 
             "40201", "product does not exist in inventory for the given product Id %1$2s",
-            "40202", "product quantity can't be decreased less than 0 for given serial number %1$2s",
+            "40202", "Product order quantity exceeded",
             "40203", "product already exits for for given serial number %1$2s, the serial number should be unique, try updating the product details",
 
             // ... (other error messages)
             "50001" , "Something went wrong while calculating product's price",
+            "50002" , "we are facing some problem with placing the product please try after some time",
             "500", "Internal Server Error"
     );
 
