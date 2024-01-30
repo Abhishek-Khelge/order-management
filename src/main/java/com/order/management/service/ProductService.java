@@ -27,17 +27,24 @@ public class ProductService {
 
     @SneakyThrows
     public PriceQuoteResponse calculatePriceQuote(Integer productId, PriceQuoteRequest priceQuoteRequest) {
+        ProductDetails productDetails = productDetailsRepository.getProductDetails(productId);
+        if (productDetails == null) {
+            throw new OrderManagementException(OrderManagementError.PRODUCT_DOES_NOT_EXISTS, new String[] { Integer.toString(productId) });
+        }
+        log.info("calculating price quote for product id :{}", productId);
         try {
-            log.info("calculating price quote for product id :{}", productId);
-            ProductDetails productDetails = productDetailsRepository.getProductDetails(productId);
-
             List<PriceDecorator> decorators = new ArrayList<>();
             PriceComponent priceCalculator = initializePriceCalculator(productDetails, decorators, priceQuoteRequest);
 
             BigDecimal basePrice = productDetails.getPrice();
             BigDecimal finalPrice = priceCalculator.calculate(basePrice);
 
-            BigDecimal discount = getDiscountAmount(decorators, basePrice);
+            if (finalPrice.compareTo(BigDecimal.ZERO) < 0){
+                log.error("price quote for product id :{}, got below 0, finalPrice :{}", productId, finalPrice);
+                throw new RuntimeException("price quote for product got below 0");
+            }
+
+            BigDecimal discount = getDiscountAmount(decorators);
             BigDecimal deliveryCharges = calculateDeliveryCharges(decorators);
             BigDecimal tax = calculateTax(decorators, basePrice);
             BigDecimal platformFee = calculatePlatformFee(decorators, basePrice);
@@ -61,12 +68,13 @@ public class ProductService {
             priceCalculator = initializeWithPlatformFeeDecorator(decorators, priceCalculator, productDetails.getPrice());
         }
         if (priceQuoteRequest.isIncludeTax()) {
-            priceCalculator = initializeWithTaxDecorator(decorators, priceCalculator, productDetails.getCategory());
+            priceCalculator = initializeWithTaxDecorator(decorators, priceCalculator, productDetails.getCategory(), productDetails.getPrice());
         }
         return priceCalculator;
     }
 
-    private PriceComponent initializeWithDiscountDecorator(List<PriceDecorator> decorators, PriceComponent priceCalculator, PriceQuoteRequest priceQuoteRequest) {
+    private PriceComponent initializeWithDiscountDecorator(List<PriceDecorator> decorators, PriceComponent priceCalculator,
+                                                           PriceQuoteRequest priceQuoteRequest) {
         DiscountDecorator discountDecorator = new DiscountDecorator(priceCalculator, priceQuoteRequest.getCouponCode());
         decorators.add(discountDecorator);
         return discountDecorator;
@@ -84,16 +92,17 @@ public class ProductService {
         return deliveryDecorator;
     }
 
-    private PriceComponent initializeWithTaxDecorator(List<PriceDecorator> decorators, PriceComponent priceCalculator, String category) {
-        TaxDecorator taxDecorator = new TaxDecorator(priceCalculator, category);
+    private PriceComponent initializeWithTaxDecorator(List<PriceDecorator> decorators, PriceComponent priceCalculator,
+                                                      String category, BigDecimal baseProductPrice) {
+        TaxDecorator taxDecorator = new TaxDecorator(priceCalculator, category, baseProductPrice);
         decorators.add(taxDecorator);
         return taxDecorator;
     }
 
-    private BigDecimal getDiscountAmount(List<PriceDecorator> decorators, BigDecimal basePrice) {
+    private BigDecimal getDiscountAmount(List<PriceDecorator> decorators) {
         return decorators.stream()
                 .filter(decorator -> decorator instanceof DiscountDecorator)
-                .map(decorator -> ((DiscountDecorator) decorator).getCouponDiscountAmount(basePrice))
+                .map(decorator -> ((DiscountDecorator) decorator).getCouponDiscountAmount())
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
     }

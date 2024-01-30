@@ -18,7 +18,8 @@ public class ProductValidator {
     public List<Message> validate(PriceQuoteRequest priceQuoteRequest) {
         List<Message> toReturn = ValidationUtil.convertViolationsToMessages(validator.validate(priceQuoteRequest));
 
-        if (priceQuoteRequest.getCouponCode().trim().isEmpty()) {
+        if (priceQuoteRequest.getCouponCode() !=  null &&
+        priceQuoteRequest.getCouponCode().trim().isEmpty()) {
             toReturn.add(new Message("couponCode", "couponCode is empty space", "4001", "failure"));
         }
 

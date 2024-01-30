@@ -11,8 +11,8 @@ public class DiscountDecorator extends PriceDecorator {
 
     static {
         COUPON_DISCOUNT_MAP = new HashMap<>();
-        COUPON_DISCOUNT_MAP.put("SAVE10", new BigDecimal("0.10")); // 10% discount
-        COUPON_DISCOUNT_MAP.put("FREESHIP", new BigDecimal("0.05")); // 5% discount
+        COUPON_DISCOUNT_MAP.put("SAVE10", new BigDecimal("10")); // 10$
+        COUPON_DISCOUNT_MAP.put("FREESHIP", new BigDecimal("5")); // 5$
         // Add more coupons and discount amounts as needed
     }
 
@@ -28,18 +28,13 @@ public class DiscountDecorator extends PriceDecorator {
     @Override
     public BigDecimal calculate(BigDecimal basePrice) {
         BigDecimal calculatedPrice = component.calculate(basePrice);
-
-        // Apply discount if a valid coupon code is provided
-        BigDecimal discountedPrice = basePrice.subtract(getCouponDiscountAmount(calculatedPrice));
-
-        // Ensure discounted price is not negative
-        discountedPrice = discountedPrice.max(BigDecimal.ZERO);
-
-        return discountedPrice;
+        BigDecimal discountPrice = getCouponDiscountAmount();
+        discountPrice = discountPrice.max(BigDecimal.ZERO);
+        return calculatedPrice.subtract(discountPrice);
     }
 
-    public BigDecimal getCouponDiscountAmount(BigDecimal basePrice) {
-        return basePrice.multiply(discountAmount);
+    public BigDecimal getCouponDiscountAmount() {
+        return discountAmount;
     }
 
     private BigDecimal getCouponDiscountAmount(String couponCode) {

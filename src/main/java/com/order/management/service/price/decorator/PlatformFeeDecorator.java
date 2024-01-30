@@ -8,18 +8,18 @@ public class PlatformFeeDecorator extends PriceDecorator {
     private static BigDecimal FEE = new BigDecimal("2.0");
     private static final BigDecimal FEE_THRESHOLD = new BigDecimal("100.0");
 
-    private BigDecimal basePrice;
+    private BigDecimal baseProductPrice;
 
     private final PriceComponent component;
 
-    public PlatformFeeDecorator(PriceComponent component, BigDecimal basePrice) {
+    public PlatformFeeDecorator(PriceComponent component, BigDecimal baseProductPrice) {
         super(component);
         this.component = component;
-        this.basePrice = basePrice;
+        this.baseProductPrice = baseProductPrice;
     }
 
     public void setBasePrice(BigDecimal basePrice) {
-        this.basePrice = basePrice;
+        this.baseProductPrice = basePrice;
     }
 
     public void setPlatformFee(BigDecimal fee) {
@@ -30,7 +30,7 @@ public class PlatformFeeDecorator extends PriceDecorator {
     @Override
     public BigDecimal calculate(BigDecimal basePrice) {
         BigDecimal calculatedPrice = component.calculate(basePrice);
-        BigDecimal platformFee = getPlatformFee(basePrice);
+        BigDecimal platformFee = getPlatformFee(baseProductPrice);
         return calculatedPrice.add(platformFee);
     }
 

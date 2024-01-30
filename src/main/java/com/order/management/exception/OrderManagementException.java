@@ -19,7 +19,7 @@ public class OrderManagementException extends Exception {
             "40004" , "The provided page number for the request is invalid. Please provide a valid page number",
             // 40201 - 4500
 
-            "40201", "product does not exist in inventory for the given serial number %1$2s",
+            "40201", "product does not exist in inventory for the given product Id %1$2s",
             "40202", "product quantity can't be decreased less than 0 for given serial number %1$2s",
             "40203", "product already exits for for given serial number %1$2s, the serial number should be unique, try updating the product details",
 
